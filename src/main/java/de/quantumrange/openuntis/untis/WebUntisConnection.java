@@ -3,6 +3,7 @@ package de.quantumrange.openuntis.untis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.quantumrange.openuntis.models.Room;
 import de.quantumrange.openuntis.models.TimeGrid;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -60,6 +62,25 @@ public class WebUntisConnection implements UntisConnection {
 				.block());
 
 		return new TimeGrid(response);
+	}
+
+	@Override
+	public Room[] getRooms() {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getRooms"))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		Room[] rooms = new Room[response.size()];
+
+		for (int i = 0; i < rooms.length; i++) {
+			rooms[i] = new Room(response.get(i));
+		}
+
+		System.out.println(Arrays.toString(rooms));
+		return rooms;
 	}
 
 	@Override

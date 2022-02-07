@@ -1,25 +1,36 @@
 package de.quantumrange.openuntis.models;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import de.quantumrange.openuntis.util.UntisParsUtil;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Objects;
 
 public class TimeGrid {
 
-	private final TimeBlock[] blocks;
+	private final TimeBlock[][] blocks;
 
 	public TimeGrid(JsonNode node) {
-		this.blocks = new TimeBlock[node.size()];
+		this.blocks = new TimeBlock[node.size()][];
 
 		for (int i = 0; i < this.blocks.length; i++) {
-			this.blocks[i] = new TimeBlock(node.get(i));
+			this.blocks[i] = new TimeBlock[node.get(i).get("timeUnits").size()];
+
+			for (int j = 0; j < this.blocks[i].length; j++) {
+				this.blocks[i][j] = new TimeBlock(node.get(i).get("timeUnits").get(j));
+			}
+
 		}
 	}
 
-	public static class TimeBlock {
+	public static class TimeBlock implements Serializable {
+
+		@Serial
+		private static final long serialVersionUID = -7978017255622389917L;
 
 		private final String name;
 		private final LocalTime start, stop;
@@ -56,7 +67,8 @@ public class TimeGrid {
 		}
 	}
 
-	public TimeBlock[] getBlocks() {
+	@JsonProperty("blocks")
+	public TimeBlock[][] getBlocks() {
 		return blocks;
 	}
 
