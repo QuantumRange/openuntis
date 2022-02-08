@@ -20,8 +20,6 @@ public interface UntisConnection {
 	Student[] getStudents();
 
 	/*
-	{"sessionId":"A1C6EB65966324AD348E3AAA47726B4B","personType":5,"personId":2337,"klasseId":2460}
-
 	GET
 	/WebUntis/api/exams
 	params: {
