@@ -8,17 +8,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 public class WebUntisConnection implements UntisConnection {
-
 
 	@Nullable
 	private String session;
@@ -34,7 +37,14 @@ public class WebUntisConnection implements UntisConnection {
 	public WebUntisConnection(UntisAccess access) {
 		this.access = access;
 		this.id = generateId();
+
+		final int size = 16 * 1024 * 1024;
+		final ExchangeStrategies strategies = ExchangeStrategies.builder()
+				.codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
+				.build();
+
 		this.client = WebClient.builder()
+				.exchangeStrategies(strategies)
 				.baseUrl((access.server().startsWith("http") ? "" : "https://") + access.server())
 				.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
 				.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -169,6 +179,29 @@ public class WebUntisConnection implements UntisConnection {
 	}
 
 	@Override
+	public TimeTable[] getTimeTable(LocalDate from, LocalDate to) {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getTimetable",
+						this.studentID,
+								this.type,
+								from.format(DateTimeFormatter.ofPattern("yyyyMMdd")),
+								to.format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+						))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		TimeTable[] tables = new TimeTable[response.size()];
+
+		for (int i = 0; i < tables.length; i++) {
+			tables[i] = new TimeTable(response.get(i));
+		}
+
+		return tables;
+	}
+
+	@Override
 	public SchoolYear getCurrentSchoolYear() {
 		JsonNode response = parseResponse(client.post()
 				.uri(getRequestUrl())
@@ -180,16 +213,58 @@ public class WebUntisConnection implements UntisConnection {
 		return new SchoolYear(response);
 	}
 
+	@Override
+	public Department[] getDepartments() {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getDepartments"))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		Department[] departments = new Department[response.size()];
+
+		for (int i = 0; i < departments.length; i++) {
+			departments[i] = new Department(response.get(i));
+		}
+
+		return departments;
+	}
+
+	@Override
+	public Student[] getStudents() {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getStudents"))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		Student[] students = new Student[response.size()];
+
+		for (int i = 0; i < students.length; i++) {
+			students[i] = new Student(response.get(i));
+		}
+
+		return students;
+	}
+
 	private @NotNull JsonNode parseResponse(String data) {
 		ObjectMapper mapper = new ObjectMapper();
+
 		try {
 			JsonNode node = mapper.readTree(data);
 
 			return node.get("result");
 		} catch (JsonProcessingException e) {
-			System.out.println("Error: " + data);
-			e.printStackTrace();
-			return null;
+			System.out.println("Error: " + data + " ( " + e.getMessage() + " )");
+
+			try {
+				return mapper.readTree("{ }");
+			} catch (JsonProcessingException ex) {
+				ex.printStackTrace();
+				return null;
+			}
 		}
 	}
 

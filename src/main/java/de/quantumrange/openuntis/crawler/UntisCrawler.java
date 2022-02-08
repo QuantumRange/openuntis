@@ -18,11 +18,13 @@ public class UntisCrawler {
 	@Scheduled(fixedRate = 1, timeUnit = MINUTES)
 	public void crawlTimeTable() {
 		// Crawl TimeTable
+		System.out.println("Tick");
 	}
 
 	@Scheduled(fixedRate = 12, timeUnit = HOURS)
 	public void crawlOther() {
 		// Crawl Other Information
+		System.out.println("Tack");
 	}
 
 }

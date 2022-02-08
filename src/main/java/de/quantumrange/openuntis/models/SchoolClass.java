@@ -1,4 +1,4 @@
-package de.quantumrange.openuntis.untis;
+package de.quantumrange.openuntis.models;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
