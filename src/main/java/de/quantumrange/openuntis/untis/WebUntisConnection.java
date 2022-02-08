@@ -3,22 +3,16 @@ package de.quantumrange.openuntis.untis;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.quantumrange.openuntis.models.Room;
-import de.quantumrange.openuntis.models.TimeGrid;
+import de.quantumrange.openuntis.models.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.client.ClientRequest;
-import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -79,7 +73,6 @@ public class WebUntisConnection implements UntisConnection {
 			rooms[i] = new Room(response.get(i));
 		}
 
-		System.out.println(Arrays.toString(rooms));
 		return rooms;
 	}
 
@@ -103,6 +96,90 @@ public class WebUntisConnection implements UntisConnection {
 		}
 	}
 
+	@Override
+	public SchoolClass[] getClasses() {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getKlassen"))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		SchoolClass[] classes = new SchoolClass[response.size()];
+
+		for (int i = 0; i < classes.length; i++) {
+			classes[i] = new SchoolClass(response.get(i));
+		}
+
+		return classes;
+	}
+
+	@Override
+	public Subject[] getSubjects() {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getSubjects"))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		Subject[] subjects = new Subject[response.size()];
+
+		for (int i = 0; i < subjects.length; i++) {
+			subjects[i] = new Subject(response.get(i));
+		}
+
+		return subjects;
+	}
+
+	@Override
+	public Teacher[] getTeachers() {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getTeachers"))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		Teacher[] teachers = new Teacher[response.size()];
+
+		for (int i = 0; i < teachers.length; i++) {
+			teachers[i] = new Teacher(response.get(i));
+		}
+
+		return teachers;
+	}
+
+	@Override
+	public Holiday[] getHolidays() {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getHolidays"))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		Holiday[] holidays = new Holiday[response.size()];
+
+		for (int i = 0; i < holidays.length; i++) {
+			holidays[i] = new Holiday(response.get(i));
+		}
+
+		return holidays;
+	}
+
+	@Override
+	public SchoolYear getCurrentSchoolYear() {
+		JsonNode response = parseResponse(client.post()
+				.uri(getRequestUrl())
+				.bodyValue(requestHelper("getCurrentSchoolyear"))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block());
+
+		return new SchoolYear(response);
+	}
+
 	private @NotNull JsonNode parseResponse(String data) {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
@@ -110,8 +187,9 @@ public class WebUntisConnection implements UntisConnection {
 
 			return node.get("result");
 		} catch (JsonProcessingException e) {
+			System.out.println("Error: " + data);
 			e.printStackTrace();
-			throw new IllegalStateException();
+			return null;
 		}
 	}
 

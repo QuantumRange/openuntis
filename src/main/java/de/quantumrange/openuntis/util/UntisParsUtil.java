@@ -19,8 +19,15 @@ public class UntisParsUtil {
 				LocalTime.of(Integer.parseInt(str.substring(0, 2)), Integer.parseInt(str.substring(2, 4)));
 	}
 
+	public static LocalDate parseDate(JsonNode node) {
+		return parseDate(node.asInt());
+	}
+
 	public static LocalDate parseDate(int date) {
-		return null;
+		String str = String.valueOf(date);
+		return LocalDate.of(Integer.parseInt(str, 0, 4, 10),
+				Integer.parseInt(str, 4, 6, 10),
+				Integer.parseInt(str, 6, 8, 10));
 	}
 
 }

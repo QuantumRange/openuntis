@@ -8,16 +8,21 @@ import org.springframework.stereotype.Component;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.*;
 
 @Component
 public class UntisCrawler {
 
 	private static final Logger log = LoggerFactory.getLogger(UntisCrawler.class);
 
-	@Scheduled(fixedRate = 2, timeUnit = MINUTES)
-	public void reportCurrentTime() {
+	@Scheduled(fixedRate = 1, timeUnit = MINUTES)
+	public void crawlTimeTable() {
+		// Crawl TimeTable
+	}
 
+	@Scheduled(fixedRate = 12, timeUnit = HOURS)
+	public void crawlOther() {
+		// Crawl Other Information
 	}
 
 }

@@ -1,7 +1,6 @@
 package de.quantumrange.openuntis.untis;
 
-import de.quantumrange.openuntis.models.Room;
-import de.quantumrange.openuntis.models.TimeGrid;
+import de.quantumrange.openuntis.models.*;
 
 public interface UntisConnection {
 
@@ -9,6 +8,11 @@ public interface UntisConnection {
 
 	TimeGrid getTimeGrid();
 	Room[] getRooms();
+	SchoolClass[] getClasses();
+	Subject[] getSubjects();
+	Teacher[] getTeachers();
+	Holiday[] getHolidays();
+	SchoolYear getCurrentSchoolYear();
 
 	void connect();
 	void disconnect();
