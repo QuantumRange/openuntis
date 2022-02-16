@@ -6,14 +6,6 @@ import java.util.Objects;
 
 public class Department {
 
-	/*
-	  {
-    "id": 2,
-    "name": "AL BG",
-    "longName": "Berufliches Gymnasium Technik"
-  },
-	 */
-
 	private final int id;
 	private final String name, longName;
 

@@ -12,39 +12,6 @@ import static de.quantumrange.openuntis.util.UntisParsUtil.*;
 
 public class TimeTable {
 
-	/*
-	  {
-    "id": 1384818,
-    "date": 20220209,
-    "startTime": 1125,
-    "endTime": 1210,
-    "kl": [
-      {
-        "id": 2455
-      },
-      {
-        "id": 2460
-      }
-    ],
-    "te": [
-      {
-        "id": 198
-      }
-    ],
-    "su": [
-      {
-        "id": 6
-      }
-    ],
-    "ro": [
-      {
-        "id": 59
-      }
-    ],
-    "activityType": "Unterricht"
-  }
-	 */
-
 	private final int id;
 	private final LocalDate date;
 	private final LocalTime startTime, endTime;
